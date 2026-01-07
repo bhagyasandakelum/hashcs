@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const GET_POSTS = gql`
   query GetPosts {
@@ -7,7 +7,6 @@ export const GET_POSTS = gql`
       title
       slug
       excerpt
-      publishedAt
       coverImage {
         url
       }

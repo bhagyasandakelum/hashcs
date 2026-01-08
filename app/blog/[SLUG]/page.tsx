@@ -1,14 +1,14 @@
-import { hygraph } from '@/lib/hygraph';
-import { gql } from 'graphql-request';
+import { hygraph } from "@/lib/hygraph";
+import { gql } from "graphql-request";
 
 const GET_POST = gql`
   query GetPost($slug: String!) {
     post(where: { slug: $slug }) {
       title
+      publishedAt
       content {
         html
       }
-      publishedAt
     }
   }
 `;
@@ -19,10 +19,10 @@ export default async function BlogPost({ params }: any) {
   });
 
   return (
-    <article className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+    <article className="mx-auto max-w-3xl px-6 py-20">
+      <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
       <div
-        className="prose"
+        className="prose prose-lg"
         dangerouslySetInnerHTML={{ __html: post.content.html }}
       />
     </article>

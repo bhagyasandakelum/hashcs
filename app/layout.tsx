@@ -11,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Hashcs",
-  description: "Cybersecurity & Modern Software Engineering",
+  title: "Hashcs - Insights Hub",
+  description: "Dedicated to deep dives and clear explanations of core computer science theories, helping readers grasp fundamental concepts with ease and precision.",
 };
 
 export default function RootLayout({

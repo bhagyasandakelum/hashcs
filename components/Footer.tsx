@@ -8,9 +8,7 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-3">About Hashcs</h3>
           <p className="text-sm text-zinc-400 leading-relaxed">
-            Hashcs is a technical blog focused on cybersecurity, cloud
-            computing, and modern software engineering. Built for learners
-            and professionals.
+            Dedicated to deep dives and clear explanations of core computer science theories, helping readers grasp fundamental concepts with ease and precision.
           </p>
         </div>
 
@@ -22,6 +20,8 @@ export default function Footer() {
             <li>Networking</li>
             <li>Cloud Computing</li>
             <li>AI & ML</li>
+            <li>Data Science</li>
+            <li>SDLC</li>
           </ul>
         </div>
 

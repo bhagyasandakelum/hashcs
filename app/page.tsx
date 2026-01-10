@@ -55,6 +55,7 @@ export default async function Home() {
             "AI/ML",
             "Data Science",
             "Cloud Computing",
+            "SDLC",
           ].map((cat) => (
             <span key={cat} className="cursor-pointer hover:underline">
               {cat}

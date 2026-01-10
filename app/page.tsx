@@ -5,8 +5,18 @@ import { GET_POSTS } from "@/lib/queries";
 
 export const revalidate = 60;
 
+interface Post {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  coverImage?: {
+    url: string;
+  };
+}
+
 export default async function Home() {
-  let posts: any[] = [];
+  let posts: Post[] = [];
 
   try {
     const data = await hygraph.request(GET_POSTS);
@@ -17,8 +27,8 @@ export default async function Home() {
 
   if (!posts.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">No posts available.</p>
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <p className="text-zinc-400">No posts available.</p>
       </div>
     );
   }
@@ -27,108 +37,69 @@ export default async function Home() {
   const latestPosts = posts.slice(1, 6);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ===== Header ===== */}
-      <header className="border-b">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-48 rounded-full border px-4 py-2 text-sm"
+    <main className="mx-auto max-w-6xl px-6 py-12 space-y-16">
+      {/* Featured Post */}
+      <section className="grid md:grid-cols-2 gap-10 items-center border border-zinc-800 p-6">
+        {featuredPost.coverImage?.url && (
+          <Image
+            src={featuredPost.coverImage.url}
+            alt={featuredPost.title}
+            width={700}
+            height={400}
+            priority
+            className="w-full h-auto object-cover"
           />
+        )}
 
-          {/* Logo */}
-          <h1 className="text-2xl font-bold tracking-wide">HASHCS</h1>
-
-          {/* Subscribe */}
-          <button className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white">
-            SUBSCRIBE
-          </button>
+        <div>
+          <h2 className="text-3xl font-bold mb-4">
+            {featuredPost.title}
+          </h2>
+          <p className="text-zinc-400 mb-6">
+            {featuredPost.excerpt}
+          </p>
+          <Link
+            href={`/blog/${featuredPost.slug}`}
+            className="inline-block rounded-full border border-zinc-700 px-5 py-2 text-sm hover:bg-white hover:text-black transition"
+          >
+            Read More →
+          </Link>
         </div>
+      </section>
 
-        {/* Categories */}
-        <nav className="mx-auto max-w-6xl px-6 py-3 flex gap-8 text-sm font-medium justify-center">
-          {[
-            "Cybersecurity",
-            "Networking",
-            "AI/ML",
-            "Data Science",
-            "Cloud Computing",
-            "SDLC",
-          ].map((cat) => (
-            <span key={cat} className="cursor-pointer hover:underline">
-              {cat}
-            </span>
-          ))}
-        </nav>
-      </header>
+      {/* Latest Posts */}
+      <section className="grid md:grid-cols-2 gap-10">
+        {latestPosts.map((post) => (
+          <article
+            key={post.id}
+            className="border border-zinc-800 p-5 flex gap-4"
+          >
+            {post.coverImage?.url && (
+              <Image
+                src={post.coverImage.url}
+                alt={post.title}
+                width={160}
+                height={100}
+                className="object-cover"
+              />
+            )}
 
-      {/* ===== Main Content ===== */}
-      <main className="mx-auto max-w-6xl px-6 py-12 space-y-16">
-        {/* Featured Post */}
-        <section className="grid md:grid-cols-2 gap-10 items-center border p-6">
-          {featuredPost.coverImage?.url && (
-            <Image
-              src={featuredPost.coverImage.url}
-              alt={featuredPost.title}
-              width={700}
-              height={400}
-              priority
-              className="w-full h-auto object-cover"
-            />
-          )}
-
-          <div>
-            <h2 className="text-3xl font-bold mb-4">
-              {featuredPost.title}
-            </h2>
-            <p className="text-gray-600 mb-6">
-              {featuredPost.excerpt}
-            </p>
-            <Link
-              href={`/blog/${featuredPost.slug}`}
-              className="inline-block rounded-full border px-5 py-2 text-sm hover:bg-black hover:text-white transition"
-            >
-              Read More →
-            </Link>
-          </div>
-        </section>
-
-        {/* Latest Posts */}
-        <section className="grid md:grid-cols-2 gap-10">
-          {latestPosts.map((post) => (
-            <article
-              key={post.id}
-              className="border p-5 flex gap-4"
-            >
-              {post.coverImage?.url && (
-                <Image
-                  src={post.coverImage.url}
-                  alt={post.title}
-                  width={160}
-                  height={100}
-                  className="object-cover"
-                />
-              )}
-
-              <div>
-                <h3 className="font-semibold mb-1">
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="hover:underline"
-                  >
-                    {post.title}
-                  </Link>
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {post.excerpt}
-                </p>
-              </div>
-            </article>
-          ))}
-        </section>
-      </main>
-    </div>
+            <div>
+              <h3 className="font-semibold mb-1">
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="hover:underline"
+                >
+                  {post.title}
+                </Link>
+              </h3>
+              <p className="text-sm text-zinc-400">
+                {post.excerpt}
+              </p>
+            </div>
+          </article>
+        ))}
+      </section>
+    </main>
   );
 }

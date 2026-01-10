@@ -1,17 +1,41 @@
 import { hygraph } from "@/lib/hygraph";
 import { gql } from "graphql-request";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export const revalidate = 60;
 
-const GET_POST = gql`
-  query GetPost($slug: String!) {
+interface Post {
+  id: string;
+  title: string;
+  slug: string;
+}
+
+interface PostPageData {
+  post: {
+    title: string;
+    publishedAt: string;
+    content: {
+      html: string;
+    };
+  };
+  posts: Post[];
+}
+
+const GET_POST_PAGE = gql`
+  query GetPostPage($slug: String!) {
     post(where: { slug: $slug }) {
       title
       publishedAt
       content {
         html
       }
+    }
+
+    posts(orderBy: publishedAt_DESC, first: 5) {
+      id
+      title
+      slug
     }
   }
 `;
@@ -23,37 +47,61 @@ export default async function BlogPost({
 }) {
   const { slug } = await params;
 
-  if (!slug) {
-    notFound();
-  }
+  if (!slug) notFound();
 
-  let data;
+  let data: PostPageData;
 
   try {
-    data = await hygraph.request(GET_POST, { slug });
-  } catch (error) {
-    console.error("Hygraph post fetch error:", error);
+    data = await hygraph.request(GET_POST_PAGE, { slug });
+  } catch {
     notFound();
   }
 
-  if (!data?.post) {
-    notFound();
-  }
-
-  const { post } = data;
+  if (!data?.post || !data?.posts) notFound();
 
   return (
-    <article className="mx-auto max-w-3xl px-6 py-20">
-      <h1 className="mb-4 text-4xl font-bold">{post.title}</h1>
+    <main className="mx-auto max-w-6xl px-6 py-20 grid md:grid-cols-3 gap-12">
+      {/* Main Article */}
+      <article className="md:col-span-2">
+        <h1 className="text-4xl font-bold mb-4">{data.post.title}</h1>
 
-      <p className="mb-10 text-sm text-gray-500">
-        {new Date(post.publishedAt).toDateString()}
-      </p>
+        <p className="text-sm text-zinc-400 mb-10">
+          {new Date(data.post.publishedAt).toDateString()}
+        </p>
 
-      <div
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.content.html }}
-      />
-    </article>
+        <div
+          className="prose prose-invert prose-lg max-w-none"
+          dangerouslySetInnerHTML={{ __html: data.post.content.html }}
+        />
+      </article>
+
+      {/* Sidebar */}
+      <aside className="space-y-10">
+        {/* Newest */}
+        <div>
+          <h3 className="mb-4 text-lg font-semibold">Newest Articles</h3>
+          <ul className="space-y-3 text-sm text-zinc-400">
+            {data.posts.map((p) => (
+              <li key={p.id}>
+                <Link
+                  href={`/blog/${p.slug}`}
+                  className="hover:text-white"
+                >
+                  {p.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Relevant (placeholder logic) */}
+        <div>
+          <h3 className="mb-4 text-lg font-semibold">Relevant Articles</h3>
+          <p className="text-sm text-zinc-500">
+            Coming soon (tag-based relevance).
+          </p>
+        </div>
+      </aside>
+    </main>
   );
 }

@@ -1,7 +1,17 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   images: {
-    domains: ["ap-south-1.graphassets.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "media.graphassets.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ap-south-1.graphassets.com",
+      },
+    ],
   },
 };
 

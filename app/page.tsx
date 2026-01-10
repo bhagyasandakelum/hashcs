@@ -3,14 +3,24 @@ import Link from "next/link";
 import { hygraph } from "@/lib/hygraph";
 import { GET_POSTS } from "@/lib/queries";
 
+export const revalidate = 60;
+
 export default async function Home() {
   let posts: any[] = [];
 
   try {
     const data = await hygraph.request(GET_POSTS);
     posts = data?.posts ?? [];
-  } catch (err) {
-    console.error("Hygraph error:", err);
+  } catch (error) {
+    console.error("Hygraph fetch error:", error);
+  }
+
+  if (!posts.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">No posts available.</p>
+      </div>
+    );
   }
 
   const featuredPost = posts[0];
@@ -46,9 +56,9 @@ export default async function Home() {
             "Data Science",
             "Cloud Computing",
           ].map((cat) => (
-            <Link key={cat} href="#" className="hover:underline">
+            <span key={cat} className="cursor-pointer hover:underline">
               {cat}
-            </Link>
+            </span>
           ))}
         </nav>
       </header>
@@ -56,36 +66,33 @@ export default async function Home() {
       {/* ===== Main Content ===== */}
       <main className="mx-auto max-w-6xl px-6 py-12 space-y-16">
         {/* Featured Post */}
-        {featuredPost && (
-          <section className="grid md:grid-cols-2 gap-10 items-center border p-6">
-            <div className="border">
-              {featuredPost.coverImage?.url && (
-                <Image
-                  src={featuredPost.coverImage.url}
-                  alt={featuredPost.title}
-                  width={700}
-                  height={400}
-                  className="w-full h-auto object-cover"
-                />
-              )}
-            </div>
+        <section className="grid md:grid-cols-2 gap-10 items-center border p-6">
+          {featuredPost.coverImage?.url && (
+            <Image
+              src={featuredPost.coverImage.url}
+              alt={featuredPost.title}
+              width={700}
+              height={400}
+              priority
+              className="w-full h-auto object-cover"
+            />
+          )}
 
-            <div>
-              <h2 className="text-3xl font-bold mb-4">
-                {featuredPost.title}
-              </h2>
-              <p className="text-gray-600 mb-6">
-                {featuredPost.excerpt}
-              </p>
-              <Link
-                href={`/blog/${featuredPost.slug}`}
-                className="inline-block rounded-full border px-4 py-2 text-sm"
-              >
-                Read More..
-              </Link>
-            </div>
-          </section>
-        )}
+          <div>
+            <h2 className="text-3xl font-bold mb-4">
+              {featuredPost.title}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              {featuredPost.excerpt}
+            </p>
+            <Link
+              href={`/blog/${featuredPost.slug}`}
+              className="inline-block rounded-full border px-5 py-2 text-sm hover:bg-black hover:text-white transition"
+            >
+              Read More →
+            </Link>
+          </div>
+        </section>
 
         {/* Latest Posts */}
         <section className="grid md:grid-cols-2 gap-10">
@@ -105,8 +112,11 @@ export default async function Home() {
               )}
 
               <div>
-                <h3 className="font-semibold">
-                  <Link href={`/blog/${post.slug}`}>
+                <h3 className="font-semibold mb-1">
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="hover:underline"
+                  >
                     {post.title}
                   </Link>
                 </h3>

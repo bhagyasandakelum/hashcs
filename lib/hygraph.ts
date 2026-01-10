@@ -1,10 +1,15 @@
 import { GraphQLClient } from "graphql-request";
 
-export const hygraph = new GraphQLClient(
-  process.env.HYGRAPH_ENDPOINT as string,
-  {
-    headers: {
-      Authorization: `Bearer ${process.env.HYGRAPH_TOKEN}`,
-    },
-  }
-);
+const endpoint = process.env.HYGRAPH_ENDPOINT!;
+const token = process.env.HYGRAPH_TOKEN!;
+
+export const hygraph = new GraphQLClient(endpoint, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  fetch: (url, options) =>
+    fetch(url, {
+      ...options,
+      cache: "no-store",
+    }),
+});

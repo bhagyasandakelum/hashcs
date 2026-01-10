@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const categories = [
@@ -14,7 +13,6 @@ const categories = [
 ];
 
 export default function Header() {
-  const router = useRouter();
   const [query, setQuery] = useState("");
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {

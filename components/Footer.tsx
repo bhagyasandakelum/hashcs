@@ -1,4 +1,4 @@
-import { Facebook, Github, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Linkedin, Twitter } from "lucide-react";
 
 export default function Footer() {
   return (

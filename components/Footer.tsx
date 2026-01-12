@@ -18,7 +18,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-zinc-400">
             <li>Cybersecurity</li>
             <li>Networking</li>
-            <li>Cloud Computing</li>
+            <li>Cloud</li>
             <li>AI & ML</li>
             <li>Data Science</li>
             <li>SDLC</li>

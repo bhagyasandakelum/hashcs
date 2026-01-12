@@ -8,7 +8,7 @@ const categories = [
   "Networking",
   "AI/ML",
   "Data Science",
-  "Cloud Computing",
+  "Cloud",
   "SDLC",
 ];
 

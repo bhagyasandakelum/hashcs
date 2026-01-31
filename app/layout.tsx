@@ -1,3 +1,4 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -22,15 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${poppins.variable} font-sans bg-black text-white antialiased`}
-      >
-        <SearchProvider>
-          <Header />
-          {children}
-          <Footer />
-        </SearchProvider>
+    <html lang="en">
+      <body className="bg-white text-black">
+        <Header />
+        {children}
+        <Footer />
       </body>
     </html>
   );

@@ -6,7 +6,12 @@ import { gql } from "graphql-request";
 const INSTANT_SEARCH_QUERY = gql`
   query InstantSearch($query: String!) {
     posts(
-      where: { _search: $query }
+      where: {
+        OR: [
+          { title_contains: $query }
+          { excerpt_contains: $query }
+        ]
+      }
       orderBy: publishedAt_DESC
       first: 5
     ) {
@@ -22,13 +27,13 @@ const INSTANT_SEARCH_QUERY = gql`
 `;
 
 export async function searchPosts(query: string) {
-    if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length === 0) return [];
 
-    try {
-        const data: any = await hygraph.request(INSTANT_SEARCH_QUERY, { query });
-        return data.posts;
-    } catch (error) {
-        console.error("Instant search error:", error);
-        return [];
-    }
+  try {
+    const data: any = await hygraph.request(INSTANT_SEARCH_QUERY, { query });
+    return data.posts;
+  } catch (error) {
+    console.error("Instant search error:", error);
+    return [];
+  }
 }

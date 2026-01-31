@@ -27,7 +27,7 @@ export default function SearchBar() {
     // Fetch results
     useEffect(() => {
         const fetchResults = async () => {
-            if (debouncedQuery.length < 2) {
+            if (debouncedQuery.length < 1) {
                 setResults([]);
                 setIsOpen(false);
                 return;

@@ -55,8 +55,8 @@ export default async function SearchPage({
 
     return (
         <main className="mx-auto max-w-6xl px-6 py-20 min-h-screen">
-            <h1 className="text-3xl font-bold mb-8 text-zinc-900">
-                Search Results for <span className="text-indigo-600">"{query}"</span>
+            <h1 className="text-3xl font-bold mb-8 text-zinc-900 dark:text-zinc-100">
+                Search Results for <span className="text-indigo-600 dark:text-indigo-400">"{query}"</span>
             </h1>
 
             {posts.length > 0 ? (
@@ -65,9 +65,9 @@ export default async function SearchPage({
                         <Link
                             key={post.id}
                             href={`/blog/${post.slug}`}
-                            className="group block overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm hover:shadow-md transition"
+                            className="group block overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm hover:shadow-md transition dark:border-zinc-800 dark:bg-zinc-900"
                         >
-                            <div className="relative aspect-[16/9] w-full bg-zinc-100">
+                            <div className="relative aspect-[16/9] w-full bg-zinc-100 dark:bg-zinc-800">
                                 {post.coverImage?.url ? (
                                     <Image
                                         src={post.coverImage.url}
@@ -85,15 +85,15 @@ export default async function SearchPage({
                             <div className="p-6">
                                 <div className="flex gap-2 flex-wrap mb-3">
                                     {post.categories.map((cat: any) => (
-                                        <span key={cat.slug} className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                        <span key={cat.slug} className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded dark:bg-zinc-800 dark:text-indigo-400">
                                             {cat.name}
                                         </span>
                                     ))}
                                 </div>
-                                <h2 className="text-xl font-bold text-zinc-900 group-hover:text-indigo-600 transition mb-2">
+                                <h2 className="text-xl font-bold text-zinc-900 group-hover:text-indigo-600 transition mb-2 dark:text-zinc-100 dark:group-hover:text-indigo-400">
                                     {post.title}
                                 </h2>
-                                <p className="text-sm text-zinc-500 line-clamp-2">
+                                <p className="text-sm text-zinc-500 line-clamp-2 dark:text-zinc-400">
                                     {post.excerpt}
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export default async function SearchPage({
                 </div>
             ) : (
                 <div className="text-center py-20">
-                    <p className="text-zinc-500 text-lg">No posts found matching your search.</p>
+                    <p className="text-zinc-500 text-lg dark:text-zinc-400">No posts found matching your search.</p>
                 </div>
             )}
         </main>

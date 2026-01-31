@@ -27,7 +27,7 @@ export default async function Home() {
 
   if (!posts.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
         <p className="text-zinc-500">No posts available.</p>
       </div>
     );
@@ -39,7 +39,7 @@ export default async function Home() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-12 space-y-16">
       {/* Featured Post */}
-      <section className="grid md:grid-cols-2 gap-10 items-center bg-zinc-50 rounded-2xl p-8 shadow-sm">
+      <section className="grid md:grid-cols-2 gap-10 items-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-8 shadow-sm transition-colors duration-300">
         {featuredPost.coverImage?.url && (
           <Image
             src={featuredPost.coverImage.url}
@@ -52,15 +52,15 @@ export default async function Home() {
         )}
 
         <div>
-          <h2 className="text-3xl font-bold mb-4 text-zinc-900">
+          <h2 className="text-3xl font-bold mb-4 text-zinc-900 dark:text-zinc-100">
             {featuredPost.title}
           </h2>
-          <p className="text-zinc-600 mb-6">
+          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
             {featuredPost.excerpt}
           </p>
           <Link
             href={`/blog/${featuredPost.slug}`}
-            className="inline-block rounded-full bg-zinc-900 px-6 py-2 text-sm text-white font-medium hover:bg-zinc-700 transition"
+            className="inline-block rounded-full bg-zinc-900 dark:bg-white px-6 py-2 text-sm text-white dark:text-black font-medium hover:bg-zinc-700 dark:hover:bg-zinc-200 transition"
           >
             Read More →
           </Link>
@@ -72,7 +72,7 @@ export default async function Home() {
         {latestPosts.map((post) => (
           <article
             key={post.id}
-            className="group flex gap-5 items-start p-4 rounded-xl hover:bg-zinc-50 transition"
+            className="group flex gap-5 items-start p-4 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900 transition"
           >
             {post.coverImage?.url && (
               <div className="relative w-32 h-24 shrink-0 overflow-hidden rounded-lg">
@@ -86,7 +86,7 @@ export default async function Home() {
             )}
 
             <div>
-              <h3 className="font-semibold mb-2 text-lg text-zinc-900 group-hover:text-indigo-600 transition">
+              <h3 className="font-semibold mb-2 text-lg text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
                 <Link href={`/blog/${post.slug}`}>
                   {post.title}
                 </Link>

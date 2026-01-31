@@ -73,14 +73,14 @@ export default function SearchBar() {
                     onFocus={() => {
                         if (results.length > 0) setIsOpen(true);
                     }}
-                    className="w-48 rounded-full border border-zinc-300 bg-zinc-100 pl-4 pr-10 py-2 text-sm text-black placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-black transition-all focus:w-64"
+                    className="w-48 rounded-full border border-zinc-300 bg-zinc-100 pl-4 pr-10 py-2 text-sm text-black placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-black transition-all focus:w-64 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white dark:placeholder-zinc-400 dark:focus:ring-white"
                 />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400">
                     {isLoading ? (
                         <Loader2 size={16} className="animate-spin" />
                     ) : query ? (
                         <button type="button" onClick={() => { setQuery(""); setResults([]); setIsOpen(false); }}>
-                            <X size={16} className="hover:text-black" />
+                            <X size={16} className="hover:text-black dark:hover:text-white" />
                         </button>
                     ) : (
                         <Search size={16} />
@@ -90,14 +90,14 @@ export default function SearchBar() {
 
             {/* Dropdown Results */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-80 md:w-96 bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 w-80 md:w-96 bg-white rounded-xl shadow-xl border border-zinc-200 overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
                     {results.length > 0 ? (
                         <ul>
                             {results.map((post) => (
-                                <li key={post.id} className="border-b border-zinc-100 last:border-0">
+                                <li key={post.id} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
                                     <Link
                                         href={`/blog/${post.slug}`}
-                                        className="flex gap-4 p-4 hover:bg-zinc-50 transition items-start"
+                                        className="flex gap-4 p-4 hover:bg-zinc-50 transition items-start dark:hover:bg-zinc-800"
                                         onClick={() => setIsOpen(false)}
                                     >
                                         {post.coverImage?.url && (
@@ -106,8 +106,8 @@ export default function SearchBar() {
                                             </div>
                                         )}
                                         <div>
-                                            <h4 className="text-sm font-semibold text-zinc-900 line-clamp-1">{post.title}</h4>
-                                            <p className="text-xs text-zinc-500 mt-1">
+                                            <h4 className="text-sm font-semibold text-zinc-900 line-clamp-1 dark:text-zinc-100">{post.title}</h4>
+                                            <p className="text-xs text-zinc-500 mt-1 dark:text-zinc-400">
                                                 {new Date(post.publishedAt).toLocaleDateString()}
                                             </p>
                                         </div>
@@ -117,15 +117,15 @@ export default function SearchBar() {
                             <li>
                                 <button
                                     onClick={(e) => handleSearch(e)}
-                                    className="w-full text-center py-3 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition"
+                                    className="w-full text-center py-3 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition dark:text-indigo-400 dark:hover:bg-zinc-800"
                                 >
                                     View all results
                                 </button>
                             </li>
                         </ul>
                     ) : (
-                        !isLoading && debouncedQuery.length >= 2 && (
-                            <div className="p-4 text-center text-sm text-zinc-500">
+                        !isLoading && debouncedQuery.length >= 1 && (
+                            <div className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
                                 No results found.
                             </div>
                         )

@@ -18,6 +18,10 @@ interface Post {
   id: string;
   title: string;
   slug: string;
+  coverImage?: {
+    url: string;
+  };
+  publishedAt: string;
 }
 
 interface BlogPageData {
@@ -69,12 +73,20 @@ const GET_BLOG_PAGE = gql`
       id
       title
       slug
+      publishedAt
+      coverImage {
+        url
+      }
     }
 
     latestPosts: posts(orderBy: publishedAt_DESC, first: 5) {
       id
       title
       slug
+      publishedAt
+      coverImage {
+        url
+      }
     }
   }
 `;
@@ -130,17 +142,17 @@ export default async function BlogPost({
   if (!data?.post) notFound();
 
   return (
-    <main className="min-h-screen bg-white text-black">
+    <main className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
       <div className="mx-auto max-w-6xl px-6 py-20 grid md:grid-cols-3 gap-14">
         {/* =======================
             Main Article
         ======================== */}
         <article className="md:col-span-2">
-          <h1 className="text-4xl font-bold mb-4 text-zinc-900">
+          <h1 className="text-4xl font-bold mb-4 text-zinc-900 dark:text-zinc-100">
             {data.post.title}
           </h1>
 
-          <p className="text-sm text-zinc-500 mb-6">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
             {new Date(data.post.publishedAt).toDateString()}
           </p>
 
@@ -161,7 +173,7 @@ export default async function BlogPost({
               <Link
                 key={cat.slug}
                 href={`/topics/${cat.slug}`}
-                className="text-xs bg-zinc-100 text-zinc-700 px-3 py-1 rounded-full hover:bg-zinc-200 transition"
+                className="text-xs bg-zinc-100 text-zinc-700 px-3 py-1 rounded-full hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition"
               >
                 {cat.name}
               </Link>
@@ -170,7 +182,7 @@ export default async function BlogPost({
 
           {/* Content */}
           <div
-            className="prose prose-lg max-w-none text-zinc-800"
+            className="prose prose-lg max-w-none text-zinc-800 dark:text-zinc-300 dark:prose-invert"
             dangerouslySetInnerHTML={{
               __html: data.post.content.html,
             }}
@@ -183,23 +195,39 @@ export default async function BlogPost({
         <aside className="space-y-14">
           {/* Relevant */}
           <section>
-            <h3 className="mb-4 text-lg font-semibold">
+            <h3 className="mb-4 text-lg font-bold border-b pb-2 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100">
               Relevant Articles
             </h3>
 
             {data.relevantPosts.length ? (
-              <ul className="space-y-3 text-sm text-zinc-500">
+              <div className="space-y-4">
                 {data.relevantPosts.map((post) => (
-                  <li key={post.id}>
-                    <Link
-                      href={`/blog/${post.slug}`}
-                      className="hover:text-black hover:underline"
-                    >
-                      {post.title}
-                    </Link>
-                  </li>
+                  <Link
+                    key={post.id}
+                    href={`/blog/${post.slug}`}
+                    className="group flex gap-4 items-start"
+                  >
+                    {post.coverImage?.url && (
+                      <div className="relative w-24 h-16 shrink-0 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                        <Image
+                          src={post.coverImage.url}
+                          alt={post.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition duration-300"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition line-clamp-2">
+                        {post.title}
+                      </h4>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                        {new Date(post.publishedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </Link>
                 ))}
-              </ul>
+              </div>
             ) : (
               <p className="text-sm text-zinc-400">
                 No related articles found.
@@ -209,22 +237,38 @@ export default async function BlogPost({
 
           {/* Latest */}
           <section>
-            <h3 className="mb-4 text-lg font-semibold">
+            <h3 className="mb-4 text-lg font-bold border-b pb-2 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100">
               Latest Articles
             </h3>
 
-            <ul className="space-y-3 text-sm text-zinc-500">
+            <div className="space-y-4">
               {data.latestPosts.map((post) => (
-                <li key={post.id}>
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="hover:text-black hover:underline"
-                  >
-                    {post.title}
-                  </Link>
-                </li>
+                <Link
+                  key={post.id}
+                  href={`/blog/${post.slug}`}
+                  className="group flex gap-4 items-start"
+                >
+                  {post.coverImage?.url && (
+                    <div className="relative w-24 h-16 shrink-0 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                      <Image
+                        src={post.coverImage.url}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition line-clamp-2">
+                      {post.title}
+                    </h4>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                      {new Date(post.publishedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </Link>
               ))}
-            </ul>
+            </div>
           </section>
         </aside>
       </div>

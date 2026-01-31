@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { ThemeProvider } from "../components/ThemeProvider";
 import { SearchProvider } from "@/context/SearchContext";
 
 const poppins = Poppins({
@@ -23,11 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-white text-black">
-        <Header />
-        {children}
-        <Footer />
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-white text-black dark:bg-black dark:text-white transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Header />
+          {children}
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

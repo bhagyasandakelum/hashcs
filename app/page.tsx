@@ -37,66 +37,87 @@ export default async function Home() {
   const latestPosts = posts.slice(1, 6);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12 space-y-16">
+    <main className="mx-auto max-w-7xl px-6 py-12 space-y-20">
       {/* Featured Post */}
-      <section className="grid md:grid-cols-2 gap-10 items-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl p-8 shadow-sm transition-colors duration-300">
+      <section className="group relative grid md:grid-cols-2 gap-10 items-center">
         {featuredPost.coverImage?.url && (
-          <Image
-            src={featuredPost.coverImage.url}
-            alt={featuredPost.title}
-            width={700}
-            height={400}
-            priority
-            className="w-full h-auto object-cover rounded-xl shadow-md"
-          />
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl shadow-lg bg-zinc-100 dark:bg-zinc-800">
+            <Image
+              src={featuredPost.coverImage.url}
+              alt={featuredPost.title}
+              fill
+              priority
+              className="object-cover transition duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
         )}
 
-        <div>
-          <h2 className="text-3xl font-bold mb-4 text-zinc-900 dark:text-zinc-100">
-            {featuredPost.title}
+        <div className="flex flex-col justify-center">
+          <div className="mb-4 inline-flex items-center space-x-2">
+            <span className="px-3 py-1 text-xs font-bold tracking-wider uppercase bg-black text-white dark:bg-white dark:text-black rounded-full">
+              Featured
+            </span>
+            {/* Optional: Add date here if desired, keeping it minimal */}
+          </div>
+
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 text-zinc-900 dark:text-zinc-100 leading-tight">
+            <Link href={`/blog/${featuredPost.slug}`} className="hover:text-zinc-700 dark:hover:text-zinc-300 transition">
+              {featuredPost.title}
+            </Link>
           </h2>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8 leading-relaxed line-clamp-3">
             {featuredPost.excerpt}
           </p>
+
           <Link
             href={`/blog/${featuredPost.slug}`}
-            className="inline-block rounded-full bg-zinc-900 dark:bg-white px-6 py-2 text-sm text-white dark:text-black font-medium hover:bg-zinc-700 dark:hover:bg-zinc-200 transition"
+            className="inline-flex items-center text-sm font-bold uppercase tracking-wide border-b-2 border-black dark:border-white pb-1 hover:text-zinc-600 dark:hover:text-zinc-300 hover:border-zinc-600 dark:hover:border-zinc-300 transition w-fit"
           >
-            Read More →
+            Read Article <span className="ml-2">→</span>
           </Link>
         </div>
       </section>
 
       {/* Latest Posts */}
-      <section className="grid md:grid-cols-2 gap-10">
-        {latestPosts.map((post) => (
-          <article
-            key={post.id}
-            className="group flex gap-5 items-start p-4 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900 transition"
-          >
-            {post.coverImage?.url && (
-              <div className="relative w-32 h-24 shrink-0 overflow-hidden rounded-lg">
-                <Image
-                  src={post.coverImage.url}
-                  alt={post.title}
-                  fill
-                  className="object-cover transition duration-300 group-hover:scale-105"
-                />
-              </div>
-            )}
+      <section>
+        <div className="flex items-center justify-between mb-10 border-b border-zinc-200 dark:border-zinc-800 pb-4">
+          <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Latest Articles</h3>
+          {/* Optional: View All Link */}
+        </div>
 
-            <div>
-              <h3 className="font-semibold mb-2 text-lg text-zinc-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
-                <Link href={`/blog/${post.slug}`}>
-                  {post.title}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          {latestPosts.map((post) => (
+            <article key={post.id} className="group flex flex-col h-full">
+              {post.coverImage?.url && (
+                <Link href={`/blog/${post.slug}`} className="block overflow-hidden rounded-xl mb-4 bg-zinc-100 dark:bg-zinc-800 aspect-[4/3] relative shadow-sm">
+                  <Image
+                    src={post.coverImage.url}
+                    alt={post.title}
+                    fill
+                    className="object-cover transition duration-500 ease-out group-hover:scale-110"
+                  />
                 </Link>
-              </h3>
-              <p className="text-sm text-zinc-500 line-clamp-2">
-                {post.excerpt}
-              </p>
-            </div>
-          </article>
-        ))}
+              )}
+
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-xl font-bold mb-3 text-zinc-900 dark:text-zinc-100 leading-snug group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition">
+                  <Link href={`/blog/${post.slug}`}>
+                    {post.title}
+                  </Link>
+                </h3>
+                <p className="text-zinc-500 dark:text-zinc-400 line-clamp-3 text-sm flex-1 leading-relaxed">
+                  {post.excerpt}
+                </p>
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-900 flex justify-between items-center">
+                  <Link href={`/blog/${post.slug}`} className="text-xs font-bold uppercase tracking-wide text-zinc-900 dark:text-zinc-100 group-hover:underline">
+                    Read Now
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
     </main>
   );

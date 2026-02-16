@@ -23,39 +23,54 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b border-zinc-200 bg-white text-black dark:bg-black dark:text-white dark:border-zinc-800 transition-colors duration-300">
+      <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-md text-black dark:bg-black/80 dark:text-white dark:border-zinc-800 transition-colors duration-300">
         {/* ===== Top Row ===== */}
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          {/* Search */}
-          <SearchBar />
-
+        <div className="mx-auto max-w-7xl px-6 py-5 flex items-center justify-between">
           {/* Logo (Return Home) */}
-          <Link
-            href="/"
-            className="text-2xl font-bold tracking-wide hover:opacity-80 transition"
-          >
-            HASHCS
-          </Link>
+          <div className="flex items-center gap-8">
+            <Link
+              href="/"
+              className="text-2xl font-extrabold tracking-tighter hover:opacity-80 transition"
+            >
+              HASHCS
+            </Link>
 
-          {/* Subscribe */}
+            {/* Desktop Nav - Moved here for better UX */}
+            <nav className="hidden md:flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/topics/${cat.slug}`}
+                  className="hover:text-black dark:hover:text-white transition"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Actions */}
           <div className="flex items-center gap-4">
+            <div className="hidden sm:block">
+              <SearchBar />
+            </div>
             <button
               onClick={() => setIsSubscribeOpen(true)}
-              className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 transition"
+              className="hidden sm:block rounded-full bg-black dark:bg-white px-5 py-2 text-xs font-bold uppercase tracking-wide text-white dark:text-black hover:opacity-80 transition"
             >
-              SUBSCRIBE
+              Subscribe
             </button>
             <ThemeToggle />
           </div>
         </div>
 
-        {/* ===== Categories ===== */}
-        <nav className="mx-auto max-w-6xl px-6 py-3 flex gap-8 text-sm font-medium justify-center text-zinc-600 dark:text-zinc-400">
+        {/* Mobile Nav Only */}
+        <nav className="md:hidden border-t border-zinc-100 dark:border-zinc-800 px-6 py-3 overflow-x-auto no-scrollbar flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
           {categories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/topics/${cat.slug}`}
-              className="hover:text-black dark:hover:text-white hover:underline underline-offset-4 transition"
+              className="whitespace-nowrap hover:text-black dark:hover:text-white transition"
             >
               {cat.name}
             </Link>

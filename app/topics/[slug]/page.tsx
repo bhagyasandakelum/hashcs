@@ -38,42 +38,49 @@ export default async function TopicPage({
   if (!category) notFound();
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-20 min-h-screen">
-      <h1 className="text-4xl font-bold mb-10 text-center text-zinc-800 dark:text-zinc-100">
-        Topic: <span className="text-indigo-600 dark:text-indigo-400">{category.name}</span>
-      </h1>
+    <main className="mx-auto max-w-7xl px-6 py-20 min-h-screen">
+      <header className="mb-16 text-center">
+        <span className="text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-2 block">
+          Topic
+        </span>
+        <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 dark:text-zinc-100">
+          {category.name}
+        </h1>
+      </header>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
         {posts.map((post: Post) => (
-          <Link
-            key={post.id}
-            href={`/blog/${post.slug}`}
-            className="group block overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm hover:shadow-md transition dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <div className="relative aspect-[16/9] w-full bg-zinc-100 dark:bg-zinc-800">
+          <article key={post.id} className="group flex flex-col h-full">
+            <Link
+              href={`/blog/${post.slug}`}
+              className="block overflow-hidden rounded-xl mb-4 bg-zinc-100 dark:bg-zinc-800 aspect-[4/3] relative shadow-lg"
+            >
               {post.coverImage?.url ? (
                 <Image
                   src={post.coverImage.url}
                   alt={post.title}
                   fill
-                  className="object-cover transition duration-300 group-hover:scale-105"
+                  className="object-cover transition duration-500 ease-out group-hover:scale-110"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-zinc-400">
+                <div className="flex h-full items-center justify-center text-zinc-400 font-medium">
                   No Image
                 </div>
               )}
-            </div>
+            </Link>
 
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-zinc-900 group-hover:text-indigo-600 transition mb-2 dark:text-zinc-100 dark:group-hover:text-indigo-400">
-                {post.title}
+            <div className="flex-1 flex flex-col">
+              <h2 className="text-xl font-bold mb-3 text-zinc-900 dark:text-zinc-100 leading-snug group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition">
+                <Link href={`/blog/${post.slug}`}>
+                  {post.title}
+                </Link>
               </h2>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {new Date(post.publishedAt).toDateString()}
-              </p>
+              <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-900 flex justify-between items-center text-xs text-zinc-500 dark:text-zinc-400">
+                <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                <span className="font-bold text-black dark:text-white uppercase tracking-wider group-hover:underline">Read Now</span>
+              </div>
             </div>
-          </Link>
+          </article>
         ))}
       </div>
 

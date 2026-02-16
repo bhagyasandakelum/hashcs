@@ -1,16 +1,16 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Space_Grotesk } from "next/font/google"; // Correct import name
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { SearchProvider } from "@/context/SearchContext";
 
-const poppins = Poppins({
+const spaceGrotesque = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-space-grotesque",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} antialiased bg-white text-black dark:bg-black dark:text-white transition-colors duration-300 font-sans`}>
+      <body className={`${spaceGrotesque.variable} antialiased bg-white text-black dark:bg-black dark:text-white transition-colors duration-300 font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Header />
           {children}

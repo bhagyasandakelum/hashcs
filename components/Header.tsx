@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import SubscribeModal from "./SubscribeModal";
 import SearchBar from "./SearchBar";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -19,8 +17,6 @@ const categories = [
 ];
 
 export default function Header() {
-  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
-
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-md text-black dark:bg-black/80 dark:text-white dark:border-zinc-800 transition-colors duration-300">
@@ -55,8 +51,7 @@ export default function Header() {
               <SearchBar />
             </div>
             <button
-              onClick={() => setIsSubscribeOpen(true)}
-              className="hidden sm:block rounded-full bg-black dark:bg-white px-5 py-2 text-xs font-bold uppercase tracking-wide text-white dark:text-black hover:opacity-80 transition"
+              className="hidden sm:block rounded-full bg-black dark:bg-white px-5 py-2 text-xs font-bold uppercase tracking-wide text-white dark:text-black hover:opacity-80 transition cursor-default"
             >
               Subscribe
             </button>
@@ -77,12 +72,6 @@ export default function Header() {
           ))}
         </nav>
       </header>
-
-      {/* ===== Subscribe Modal ===== */}
-      <SubscribeModal
-        isOpen={isSubscribeOpen}
-        onClose={() => setIsSubscribeOpen(false)}
-      />
     </>
   );
 }

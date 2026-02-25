@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 /* ================================
    Types
@@ -124,6 +125,20 @@ export default async function BlogPost({
     notFound();
   }
 
+  // Diagnostic build check
+  if (!process.env.HYGRAPH_ENDPOINT) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-10">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-500">Configuration Error</h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            HYGRAPH_ENDPOINT environment variable is missing in your Vercel settings.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   /* ================================
      Fetch Main Data
   ================================ */
@@ -135,9 +150,26 @@ export default async function BlogPost({
       console.error(`Post not found in Hygraph for slug: "${slug}"`);
       notFound();
     }
-  } catch (err) {
-    console.error(`Error fetching blog page for slug: "${slug}":`, err);
-    notFound();
+  } catch (err: any) {
+    console.error(`Error fetching blog page for slug: "${slug}":`, err.message || err);
+
+    // If it's a GraphQL error indicating the record doesn't exist, show 404
+    if (err.message?.includes("not found") || err.response?.errors?.[0]?.message?.includes("not exist")) {
+      notFound();
+    }
+
+    // Otherwise show a connection error instead of a generic 404
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-10">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-500">Content Fetch Error</h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            There was an error connecting to the content provider. Please verify your environment variables.
+          </p>
+          <p className="text-xs text-zinc-500 font-mono">{err.message}</p>
+        </div>
+      </div>
+    );
   }
 
   const post = data.post;
@@ -162,12 +194,10 @@ export default async function BlogPost({
     }
   }
 
-  data = { ...data, post, latestPosts, relevantPosts };
-
   return (
     <main className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-300 pb-20">
 
-      {/* Scroll Progress Bar (Optional - simplified for now as just a top border or similar could be nice, but sticking to requested minimal theme) */}
+      {/* Scroll Progress Bar (Optional) */}
 
       <div className="mx-auto max-w-7xl px-6 py-12 md:py-20 grid lg:grid-cols-[1fr_300px] gap-12 lg:gap-20">
 
@@ -187,12 +217,12 @@ export default async function BlogPost({
           {/* Header */}
           <header className="mb-10 text-center md:text-left">
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-black dark:text-white mb-6 leading-tight">
-              {data.post.title}
+              {post.title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400 justify-center md:justify-start">
-              <time dateTime={data.post.publishedAt} className="font-medium">
-                {new Date(data.post.publishedAt).toLocaleDateString("en-US", {
+              <time dateTime={post.publishedAt} className="font-medium">
+                {new Date(post.publishedAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -210,11 +240,11 @@ export default async function BlogPost({
           </header>
 
           {/* Cover Image */}
-          {data.post.coverImage?.url && (
+          {post.coverImage?.url && (
             <div className="relative w-full aspect-video mb-12 rounded-2xl overflow-hidden shadow-lg bg-zinc-100 dark:bg-zinc-800">
               <Image
-                src={data.post.coverImage.url}
-                alt={data.post.title}
+                src={post.coverImage.url}
+                alt={post.title}
                 fill
                 priority
                 className="object-cover"
@@ -235,7 +265,7 @@ export default async function BlogPost({
               prose-blockquote:border-l-4 prose-blockquote:border-black dark:prose-blockquote:border-white prose-blockquote:pl-6 prose-blockquote:italic
             "
             dangerouslySetInnerHTML={{
-              __html: data.post.content.html,
+              __html: post.content.html,
             }}
           />
         </article>
@@ -245,7 +275,7 @@ export default async function BlogPost({
         ======================== */}
         <aside className="space-y-12 lg:sticky lg:top-24 h-fit">
           {/* Relevant Posts */}
-          {data.relevantPosts.length > 0 && (
+          {relevantPosts.length > 0 && (
             <section>
               <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-6 border-b border-zinc-200 dark:border-zinc-800 pb-2">
                 Related Articles
@@ -296,7 +326,6 @@ export default async function BlogPost({
                   className="group"
                 >
                   <div className="flex gap-4 items-start">
-                    {/* Optional: Show small images for latest too, or keep text only if preferred. Let's show images for consistency */}
                     {post.coverImage?.url && (
                       <div className="relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                         <Image

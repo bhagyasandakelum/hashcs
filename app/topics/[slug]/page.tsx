@@ -24,6 +24,9 @@ type Topic = {
   }
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function generateStaticParams() {
   try {
     const data: any = await hygraph.request(gql`
@@ -33,6 +36,7 @@ export async function generateStaticParams() {
         }
       }
     `);
+    if (!data?.categories) return [];
     return data.categories.map((cat: { slug: string }) => ({
       slug: cat.slug,
     }));
@@ -54,15 +58,44 @@ export default async function TopicPage({
     notFound();
   }
 
+  // Diagnostic build check
+  if (!process.env.HYGRAPH_ENDPOINT) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-10">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-500">Configuration Error</h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            HYGRAPH_ENDPOINT environment variable is missing in your Vercel settings.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   let data: any;
   try {
     data = await hygraph.request(
       GET_POSTS_BY_CATEGORY,
       { slug }
     );
-  } catch (error) {
-    console.error(`Error fetching topic page for slug: "${slug}":`, error);
-    notFound();
+  } catch (error: any) {
+    console.error(`Error fetching topic page for slug: "${slug}":`, error.message || error);
+
+    if (error.message?.includes("not found") || error.response?.errors?.[0]?.message?.includes("not exist")) {
+      notFound();
+    }
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-10">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-red-500">Content Fetch Error</h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Failed to connect to the content provider for topics.
+          </p>
+          <p className="text-xs text-zinc-500 font-mono">{error.message}</p>
+        </div>
+      </div>
+    );
   }
 
   const { category, posts, categories } = data;

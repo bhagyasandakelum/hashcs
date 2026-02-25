@@ -44,7 +44,7 @@ interface BlogPageData {
    GraphQL Query
 ================================ */
 const GET_BLOG_PAGE = gql`
-  query GetBlogPage($slug: String!, $categorySlugs: [String!]) {
+  query GetBlogPage($slug: String!) {
     post(where: { slug: $slug }) {
       title
       publishedAt
@@ -61,7 +61,20 @@ const GET_BLOG_PAGE = gql`
         }
       }
     }
+    latestPosts: posts(orderBy: publishedAt_DESC, first: 5) {
+      id
+      title
+      slug
+      publishedAt
+      coverImage {
+        url
+      }
+    }
+  }
+`;
 
+const GET_RELATED_POSTS = gql`
+  query GetRelatedPosts($slug: String!, $categorySlugs: [String!]) {
     relevantPosts: posts(
       where: {
         slug_not: $slug
@@ -78,18 +91,26 @@ const GET_BLOG_PAGE = gql`
         url
       }
     }
-
-    latestPosts: posts(orderBy: publishedAt_DESC, first: 5) {
-      id
-      title
-      slug
-      publishedAt
-      coverImage {
-        url
-      }
-    }
   }
 `;
+
+export async function generateStaticParams() {
+  try {
+    const data: any = await hygraph.request(gql`
+      {
+        posts {
+          slug
+        }
+      }
+    `);
+    return data.posts.map((post: { slug: string }) => ({
+      slug: post.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
 
 export default async function BlogPost({
   params,
@@ -98,48 +119,50 @@ export default async function BlogPost({
 }) {
   const { slug } = await params;
 
-  if (!slug) notFound();
-
-  /* ================================
-     First fetch only post categories
-  ================================ */
-  const initial = await hygraph.request(
-    gql`
-      query GetPostCategories($slug: String!) {
-        post(where: { slug: $slug }) {
-          categories: name {
-            ... on Category {
-              slug
-            }
-          }
-        }
-      }
-    `,
-    { slug }
-  );
-
-  if (!initial?.post) notFound();
-
-  const categorySlugs = initial.post.categories.map(
-    (c: Category) => c.slug
-  );
-
-  /* ================================
-     Main fetch
-  ================================ */
-  let data: BlogPageData;
-
-  try {
-    data = await hygraph.request(GET_BLOG_PAGE, {
-      slug,
-      categorySlugs,
-    });
-  } catch (err) {
-    console.error("Blog fetch error:", err);
+  if (!slug) {
+    console.error("No slug provided in params");
     notFound();
   }
 
-  if (!data?.post) notFound();
+  /* ================================
+     Fetch Main Data
+  ================================ */
+  let data: any;
+  try {
+    data = await hygraph.request(GET_BLOG_PAGE, { slug });
+
+    if (!data?.post) {
+      console.error(`Post not found in Hygraph for slug: "${slug}"`);
+      notFound();
+    }
+  } catch (err) {
+    console.error(`Error fetching blog page for slug: "${slug}":`, err);
+    notFound();
+  }
+
+  const post = data.post;
+  const latestPosts = data.latestPosts;
+
+  /* ================================
+     Fetch Related Posts (depends on categories)
+  ================================ */
+  let relevantPosts: Post[] = [];
+  const categorySlugs = post.categories?.map((c: Category) => c.slug) || [];
+
+  if (categorySlugs.length > 0) {
+    try {
+      const relatedData: any = await hygraph.request(GET_RELATED_POSTS, {
+        slug,
+        categorySlugs,
+      });
+      relevantPosts = relatedData.relevantPosts;
+    } catch (err) {
+      console.error("Error fetching related posts:", err);
+      // Don't 404 if only related posts fail
+    }
+  }
+
+  data = { ...data, post, latestPosts, relevantPosts };
 
   return (
     <main className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors duration-300 pb-20">
@@ -177,7 +200,7 @@ export default async function BlogPost({
               </time>
               <span className="hidden sm:inline">•</span>
               <div className="flex gap-2">
-                {data.post.categories.map((cat) => (
+                {post.categories?.map((cat: Category) => (
                   <span key={cat.slug} className="bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-300">
                     {cat.name}
                   </span>
@@ -228,7 +251,7 @@ export default async function BlogPost({
                 Related Articles
               </h3>
               <div className="flex flex-col gap-6">
-                {data.relevantPosts.map((post) => (
+                {relevantPosts.map((post: Post) => (
                   <Link
                     key={post.id}
                     href={`/blog/${post.slug}`}
@@ -266,7 +289,7 @@ export default async function BlogPost({
               Latest Reads
             </h3>
             <div className="flex flex-col gap-6">
-              {data.latestPosts.map((post) => (
+              {latestPosts.map((post: Post) => (
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}

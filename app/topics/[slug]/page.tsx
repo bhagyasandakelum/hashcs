@@ -3,6 +3,7 @@ import { GET_POSTS_BY_CATEGORY } from "@/lib/queries";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { gql } from "graphql-request";
 
 type Post = {
   id: string;
@@ -23,6 +24,24 @@ type Topic = {
   }
 };
 
+export async function generateStaticParams() {
+  try {
+    const data: any = await hygraph.request(gql`
+      {
+        categories {
+          slug
+        }
+      }
+    `);
+    return data.categories.map((cat: { slug: string }) => ({
+      slug: cat.slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params for topics:", error);
+    return [];
+  }
+}
+
 export default async function TopicPage({
   params,
 }: {
@@ -30,12 +49,28 @@ export default async function TopicPage({
 }) {
   const { slug } = await params;
 
-  const { category, posts, categories } = await hygraph.request(
-    GET_POSTS_BY_CATEGORY,
-    { slug }
-  );
+  if (!slug) {
+    console.error("No slug provided for topic page");
+    notFound();
+  }
 
-  if (!category) notFound();
+  let data: any;
+  try {
+    data = await hygraph.request(
+      GET_POSTS_BY_CATEGORY,
+      { slug }
+    );
+  } catch (error) {
+    console.error(`Error fetching topic page for slug: "${slug}":`, error);
+    notFound();
+  }
+
+  const { category, posts, categories } = data;
+
+  if (!category) {
+    console.error(`Topic not found for slug: "${slug}"`);
+    notFound();
+  }
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-20 min-h-screen">

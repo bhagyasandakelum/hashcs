@@ -27,24 +27,6 @@ type Topic = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function generateStaticParams() {
-  try {
-    const data: any = await hygraph.request(gql`
-      {
-        categories {
-          slug
-        }
-      }
-    `);
-    if (!data?.categories) return [];
-    return data.categories.map((cat: { slug: string }) => ({
-      slug: cat.slug,
-    }));
-  } catch (error) {
-    console.error("Error generating static params for topics:", error);
-    return [];
-  }
-}
 
 export default async function TopicPage({
   params,

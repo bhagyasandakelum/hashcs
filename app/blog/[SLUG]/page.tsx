@@ -95,23 +95,6 @@ const GET_RELATED_POSTS = gql`
   }
 `;
 
-export async function generateStaticParams() {
-  try {
-    const data: any = await hygraph.request(gql`
-      {
-        posts {
-          slug
-        }
-      }
-    `);
-    return data.posts.map((post: { slug: string }) => ({
-      slug: post.slug,
-    }));
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
-}
 
 export default async function BlogPost({
   params,

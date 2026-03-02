@@ -98,7 +98,7 @@ export default async function BlogPost({
 }: {
   params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   if (!slug) {
     console.error("No slug provided in params");

@@ -55,11 +55,9 @@ const GET_BLOG_PAGE = gql`
       coverImage {
         url
       }
-      categories: name {
-        ... on Category {
-          name
-          slug
-        }
+      categories {
+        name
+        slug
       }
     }
     latestPosts: posts(orderBy: publishedAt_DESC, first: 5) {
@@ -79,7 +77,7 @@ const GET_RELATED_POSTS = gql`
     relevantPosts: posts(
       where: {
         slug_not: $slug
-        name_some: { Category: { slug_in: $categorySlugs } }
+        categories_some: { slug_in: $categorySlugs }
       }
       first: 5
       orderBy: publishedAt_DESC
@@ -95,11 +93,10 @@ const GET_RELATED_POSTS = gql`
   }
 `;
 
-
 export default async function BlogPost({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
   const { slug } = await params;
 

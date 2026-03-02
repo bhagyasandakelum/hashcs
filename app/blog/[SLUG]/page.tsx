@@ -89,11 +89,12 @@ export default async function BlogPost({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const rawSlug = (await params).slug;
+  const slug = decodeURIComponent(rawSlug || "");
 
   if (!slug) {
     console.error("No slug provided in params");
-    notFound();
+    return <div className="p-10 text-red-500">Error: No slug provided in URL</div>;
   }
 
   if (!process.env.HYGRAPH_ENDPOINT) {
@@ -115,7 +116,21 @@ export default async function BlogPost({
 
     if (!data?.post) {
       console.error(`Post not found in Hygraph for slug: "${slug}"`);
-      notFound();
+      return (
+        <div className="min-h-screen flex items-center justify-center p-10 bg-white dark:bg-black">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-500">Debugging "Not Found"</h2>
+            <p className="mt-4">We could not find the post for this slug:</p>
+            <pre className="mt-2 bg-zinc-100 dark:bg-zinc-800 p-4 rounded text-left overflow-x-auto text-sm">
+              Raw Slug: {rawSlug}
+              {"\n"}
+              Decoded Slug: {slug}
+              {"\n"}
+              Hygraph Response: {JSON.stringify(data, null, 2)}
+            </pre>
+          </div>
+        </div>
+      );
     }
   } catch (err: any) {
     console.error(`Error fetching blog page for slug: "${slug}":`, err.message || err);

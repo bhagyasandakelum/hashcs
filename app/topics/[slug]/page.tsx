@@ -33,11 +33,12 @@ export default async function TopicPage({
 }: {
   params: { slug: string } | Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const rawSlug = (await params).slug;
+  const slug = decodeURIComponent(rawSlug || "");
 
   if (!slug) {
     console.error("No slug provided for topic page");
-    notFound();
+    return <div className="p-10 text-red-500">Error: No slug provided in URL</div>;
   }
 
   // Diagnostic build check
@@ -84,7 +85,18 @@ export default async function TopicPage({
 
   if (!category) {
     console.error(`Topic not found for slug: "${slug}"`);
-    notFound();
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-10">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500">Debugging "Not Found"</h2>
+          <p className="mt-4">We could not find the topic for this slug.</p>
+          <pre className="mt-2 text-left bg-zinc-100 dark:bg-zinc-800 p-4 rounded overflow-x-auto text-sm">
+            Slug: {slug} {"\n"}
+            Response Data keys: {Object.keys(data || {}).join(", ")}
+          </pre>
+        </div>
+      </div>
+    );
   }
 
   return (

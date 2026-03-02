@@ -45,7 +45,12 @@ const GET_BLOG_PAGE = gql`
       publishedAt
       content { html }
       coverImage { url }
-      categories { name slug }
+      categories: name {
+        ... on Category {
+          name
+          slug
+        }
+      }
     }
     latestPosts: posts(orderBy: publishedAt_DESC, first: 5) {
       id
@@ -62,7 +67,7 @@ const GET_RELATED_POSTS = gql`
     relevantPosts: posts(
       where: {
         slug_not: $slug
-        categories_some: { slug_in: $categorySlugs }
+        name_some: { Category: { slug_in: $categorySlugs } }
       }
       first: 5
       orderBy: publishedAt_DESC
@@ -82,9 +87,9 @@ const GET_RELATED_POSTS = gql`
 export default async function BlogPost({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
 
   if (!slug) {
     console.error("No slug provided in params");

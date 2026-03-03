@@ -84,17 +84,37 @@ const GET_RELATED_POSTS = gql`
 /* ================================
    Page Component
 ================================ */
-export default async function BlogPost({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const rawSlug = (await params).slug;
-  const slug = decodeURIComponent(rawSlug || "");
+import { headers } from "next/headers";
+
+export default async function BlogPost(props: any) {
+  const params = await props.params;
+  let rawSlug = params?.slug;
+
+  // Fallback for Vercel edge cases where params mysteriously drops the slug
+  if (!rawSlug) {
+    const headersList = await headers();
+    const pathname = headersList.get("x-invoke-path") || headersList.get("x-middleware-invoke") || headersList.get("referer") || "";
+    const match = pathname.match(/\/blog\/([^/?]+)/);
+    if (match && match[1]) {
+      rawSlug = match[1];
+    }
+  }
+
+  const slug = rawSlug ? decodeURIComponent(rawSlug) : "";
 
   if (!slug) {
-    console.error("No slug provided in params");
-    return <div className="p-10 text-red-500">Error: No slug provided in URL</div>;
+    const headersList = await headers();
+    const allHeaders = Object.fromEntries(headersList.entries());
+    console.error("No slug provided in params", JSON.stringify(props));
+    return (
+      <div className="p-10 text-red-500 max-w-4xl mx-auto">
+        <h2 className="text-xl font-bold">Error: No slug provided in URL</h2>
+        <p className="mt-2 text-zinc-600">Please provide the text below to the assistant:</p>
+        <pre className="mt-4 bg-zinc-100 p-4 rounded text-black text-xs overflow-auto">
+          {JSON.stringify({ props, params, rawSlug, allHeaders }, null, 2)}
+        </pre>
+      </div>
+    );
   }
 
   if (!process.env.HYGRAPH_ENDPOINT) {

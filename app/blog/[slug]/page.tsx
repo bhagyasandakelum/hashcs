@@ -88,7 +88,8 @@ import { headers } from "next/headers";
 
 export default async function BlogPost(props: any) {
   const params = await props.params;
-  let rawSlug = params?.slug;
+  // Account for git filename casing bug where [slug] got renamed to [SLUG] in repo
+  let rawSlug = params?.slug || params?.SLUG;
 
   // Fallback for Vercel edge cases where params mysteriously drops the slug
   if (!rawSlug) {

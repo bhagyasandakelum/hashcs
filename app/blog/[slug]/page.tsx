@@ -3,6 +3,7 @@ import { gql } from "graphql-request";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -19,6 +20,7 @@ interface Post {
   id: string;
   title: string;
   slug: string;
+  excerpt?: string;
   coverImage?: { url: string };
   publishedAt: string;
 }
@@ -26,6 +28,7 @@ interface Post {
 interface BlogPageData {
   post: {
     title: string;
+    excerpt?: string;
     publishedAt: string;
     content: { html: string };
     coverImage?: { url: string };
@@ -42,6 +45,7 @@ const GET_BLOG_PAGE = gql`
   query GetBlogPage($slug: String!) {
     post(where: { slug: $slug }) {
       title
+      excerpt
       publishedAt
       content { html }
       coverImage { url }
@@ -85,6 +89,80 @@ const GET_RELATED_POSTS = gql`
    Page Component
 ================================ */
 import { headers } from "next/headers";
+
+type Props = {
+  params: Promise<{ slug?: string; SLUG?: string }>;
+};
+
+export async function generateMetadata(
+  props: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const params = await props.params;
+  let rawSlug = params?.slug || params?.SLUG;
+
+  if (!rawSlug) {
+    const headersList = await headers();
+    const pathname = headersList.get("x-invoke-path") || headersList.get("x-middleware-invoke") || headersList.get("referer") || "";
+    const match = pathname.match(/\/blog\/([^/?]+)/);
+    if (match && match[1]) {
+      rawSlug = match[1];
+    }
+  }
+
+  const slug = rawSlug ? decodeURIComponent(rawSlug) : "";
+
+  if (!slug || !process.env.HYGRAPH_ENDPOINT) return {};
+
+  try {
+    const data: any = await hygraph.request(
+      gql`
+        query GetPostMetadata($slug: String!) {
+          post(where: { slug: $slug }) {
+            title
+            excerpt
+            coverImage { url }
+          }
+        }
+      `,
+      { slug }
+    );
+
+    if (!data?.post) return {};
+
+    const post = data.post;
+    const description = post.excerpt || `${post.title}`;
+
+    return {
+      title: post.title,
+      description: description,
+      openGraph: {
+        title: post.title,
+        description: description,
+        type: "article",
+        ...(post.coverImage?.url && {
+          images: [
+            {
+              url: post.coverImage.url,
+              width: 1200,
+              height: 630,
+              alt: post.title,
+            },
+          ],
+        }),
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: post.title,
+        description: description,
+        ...(post.coverImage?.url && { images: [post.coverImage.url] }),
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {};
+  }
+}
 
 export default async function BlogPost(props: any) {
   const params = await props.params;
